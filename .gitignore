@@ -1,0 +1,5 @@
+*
+!*.vhd
+!.gitignore
+!.git/
+!*/
