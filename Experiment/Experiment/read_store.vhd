@@ -35,12 +35,13 @@ entity read_store is
            reset : in  STD_LOGIC;
            load : in  STD_LOGIC;
            i : in  STD_LOGIC_VECTOR((number_literals-1) downto 0);
-           formula_res: out formula);
+           formula_res: out formula;
+           ended: out STD_LOGIC);
 end read_store;
 
 architecture Behavioral of read_store is
 signal temp_formula : formula := ZERO_FORMULA;
-type mem_type is array (2*number_clauses downto 0) of STD_LOGIC_VECTOR((number_literals-1) downto 0);
+type mem_type is array ((2*number_clauses - 1) downto 0) of STD_LOGIC_VECTOR((number_literals-1) downto 0);
 signal bit_vec : mem_type := (others => (others => '0'));
 signal noofcycles : INTEGER := 0;
 signal noofclauses: INTEGER := 0;
@@ -67,6 +68,7 @@ process(clock, reset)
 		row_iterator <= 0;
 		computing <= '0';
 		finished <= '0';
+		ended <= '0';
     end if;
 
     if rising_edge(clock) then
@@ -74,16 +76,19 @@ process(clock, reset)
 	    if load='1' and computing = '0'then 
 	    	bit_vec(noofcycles) <= i;
 	      	noofcycles <= noofcycles + 1;
+			ended <= '0';
 
 		elsif load = '0' and lowload = '0' and computing = '0' then
 			lowload <= '1';
+			ended <= '0';
 
 		elsif load = '0' and lowload = '1' and computing = '0' then
 			computing <= '1';
 			noofclauses <= noofcycles/2;
+			ended <= '0';
 
 		elsif computing = '1' then
-			if oiterator < number_clauses then
+			if oiterator < noofclauses then
 				if iiterator < number_literals then
 					if bit_vec(2*oiterator)(iiterator) = '1' and bit_vec(2*oiterator + 1)(iiterator) = '0' then
 						temp_formula.clauses(oiterator).lits(row_iterator).num <= iiterator + 1;
@@ -104,9 +109,10 @@ process(clock, reset)
 				computing <= '0';
 				finished <= '1';
 			end if;
+			ended <= '0';
 		elsif finished='1' then
 			formula_res <= temp_formula;
-
+			ended <= '1';
 		end if;
 	end if;
 end process;		
