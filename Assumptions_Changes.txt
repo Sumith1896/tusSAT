@@ -1,0 +1,30 @@
+Assumptions/Changes
+===================
+
+INPUT PARSING
+-------------
+input_parse resets before taking in input
+
+CORE_STRUCT
+-----------
+
+
+
+UNIT CLAUSE
+-----------
+i) len field is important
+ii) no sorting is required
+iii)The formula must be in correct format : 
+	All literals occur together initially
+	All clauses mus occur together initially
+
+
+PROPAGATE LITERAL
+-----------------
+i) Changed `check` (which takes values  {0,1,2}) to `empty_clause`{0,1} and `empty_formula`{0,1}
+
+TODO
+----
+Decide on initialization convention for
+	i)  ended std_logic
+	
