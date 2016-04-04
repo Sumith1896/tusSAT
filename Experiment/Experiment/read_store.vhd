@@ -85,6 +85,7 @@ process(clock, reset)
 		elsif load = '0' and lowload = '1' and computing = '0' then
 			computing <= '1';
 			noofclauses <= noofcycles/2;
+			temp_formula.len <= noofclauses;
 			ended <= '0';
 
 		elsif computing = '1' then
@@ -102,6 +103,7 @@ process(clock, reset)
 					iiterator <= iiterator + 1;
 				else
 					iiterator <= 0;
+					temp_formula.clauses(oiterator).len <= row_iterator;
 					row_iterator <= 0;
 					oiterator <= oiterator + 1;
 				end if;
