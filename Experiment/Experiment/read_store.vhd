@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use work.common.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,67 +31,83 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity read_store is
-	generic(vars: INTEGER:=64
-			max_size : INTEGER := 1024;
-			int_range_st : INTEGER := -70;
-  			int_range_end : INTEGER := 70););
     Port ( clock : in  STD_LOGIC;
            reset : in  STD_LOGIC;
            load : in  STD_LOGIC;
-           i : in  STD_LOGIC_VECTOR((vars-1) downto 0);
+           i : in  STD_LOGIC_VECTOR((number_literals-1) downto 0);
+           formula_res: out formula);
 end read_store;
 
 architecture Behavioral of read_store is
-type  mem_type is array (max_size downto 0) of INTEGER range int_range_st to int_range_end;
-signal data : mem_type := (others => 0);
-type  mem_type2 is array (max_size downto 0) of STD_LOGIC_VECTOR(63 downto 0);
-signal bit_vec : mem_type2 := (others => (others => '0'));
+signal temp_formula : formula := ZERO_FORMULA;
+type mem_type is array (2*number_clauses downto 0) of STD_LOGIC_VECTOR((number_literals-1) downto 0);
+signal bit_vec : mem_type := (others => (others => '0'));
 signal noofcycles : INTEGER := 0;
+signal noofclauses: INTEGER := 0;
 signal lowload : STD_LOGIC := '0';
+signal oiterator : INTEGER := 0;
+signal iiterator : INTEGER := 0;
+signal row_iterator : INTEGER := 0;
+signal computing : STD_LOGIC := '0';
+signal finished : STD_LOGIC := '0';
 
 begin
-	
 
-	DATA: process(clock, load)
-		variable noofclauses: INTEGER := 0;
-		variable row_iterator: INTEGER := 0;
-		if rising_edge(clock) then
-			
-			--RESET
-		    if reset='1' then 
-		      data <= (others=>0);
-		      bit_vec <= (others => (others => '0'));
-		      noofcycles <= 0;
-		      lowload <= '0';
+process(clock, reset)
+	begin
+	--RESET--
+    if reset='1' then 
+		temp_formula <= ZERO_FORMULA;
+		bit_vec <= (others => (others => '0'));
+		noofcycles <= 0;
+		lowload <= '0';
+		noofclauses <= 0;
+		oiterator <= 0;
+		iiterator <= 0;
+		row_iterator <= 0;
+		computing <= '0';
+		finished <= '0';
+    end if;
 
-		    -- PARSE
-		    if load='1' then 
-		    	bit_vec(noofcycles) <= i;
-		      	noofcycles <= noofcycles + 1;
-		      	lowload = '0';
+    if rising_edge(clock) then
+	    -- PARSE	
+	    if load='1' and computing = '0'then 
+	    	bit_vec(noofcycles) <= i;
+	      	noofcycles <= noofcycles + 1;
 
-			elsif load = '0' and lowload = '0' then
-				lowload = '1';
+		elsif load = '0' and lowload = '0' and computing = '0' then
+			lowload <= '1';
 
-			elsif load = '0' and lowload = '1' then
-				noofclauses := noofcycles/2;
-				for i in 0 to 1000 loop
-					exit when i = noofclauses;
-					row_iterator := 0;
-					for j in 0 to 64 loop
-						exit when j = 64
-						if bit_vec(2*i)(j) = '1' and bit_vec(2*i + 1)(j) = '0' then
-							data(i)(row_iterator) <= j + 1;
-							row_iterator := row_iterator + 1;
-						elsif bit_vec(2*i)(j) = '0' and bit_vec(2*i + 1)(j) = '1' then
-							data(i)(row_iterator) <= - j - 1;
-							row_iterator := row_iterator + 1;
-						end if;
-					end loop
-				end loop;
+		elsif load = '0' and lowload = '1' and computing = '0' then
+			computing <= '1';
+			noofclauses <= noofcycles/2;
+
+		elsif computing = '1' then
+			if oiterator < number_clauses then
+				if iiterator < number_literals then
+					if bit_vec(2*oiterator)(iiterator) = '1' and bit_vec(2*oiterator + 1)(iiterator) = '0' then
+						temp_formula.clauses(oiterator).lits(row_iterator).num <= iiterator + 1;
+						temp_formula.clauses(oiterator).lits(row_iterator).val <= '1';
+						row_iterator <= row_iterator + 1;
+					elsif bit_vec(2*oiterator)(iiterator) = '0' and bit_vec(2*oiterator + 1)(iiterator) = '1' then
+						temp_formula.clauses(oiterator).lits(row_iterator).num <= iiterator + 1;
+						temp_formula.clauses(oiterator).lits(row_iterator).val <= '0';
+						row_iterator <= row_iterator + 1;
+					end if;
+					iiterator <= iiterator + 1;
+				else
+					iiterator <= 0;
+					row_iterator <= 0;
+					oiterator <= oiterator + 1;
+				end if;
+			else 
+				computing <= '0';
+				finished <= '1';
 			end if;
+		elsif finished='1' then
+			formula_res <= temp_formula;
+
 		end if;
-	end process;		
-
+	end if;
+end process;		
 end Behavioral;
-
