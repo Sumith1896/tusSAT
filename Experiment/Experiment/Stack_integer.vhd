@@ -61,21 +61,19 @@ begin
   full <= full_signal;
   empty <= empty_signal;
 
-	process(clock)
+	process(clock,reset)
   variable temp : INTEGER := curr_size;
   begin
-    if rising_edge(clock) then
-      
-      --RESET
-      if reset='1' then 
-        data <= (others=>zero_lit);
-        curr_size <= 0;
-        data_out <= zero_lit;
-        empty_signal <= '1';
-        full_signal <= '0';
-      
+    --RESET
+    if reset='1' then 
+      data <= (others=>zero_lit);
+      curr_size <= 0;
+      data_out <= zero_lit;
+      empty_signal <= '1';
+      full_signal <= '0';
+    elsif rising_edge(clock) then
       -- PUSH
-      elsif wr_en='1' and full_signal='0' then 
+      if wr_en='1' and full_signal='0' then 
         data(curr_size) <= data_in;
         curr_size <= curr_size + 1;
         temp := temp + 1;

@@ -20,20 +20,19 @@ package Common is
 --
 -- Declare constants
 --
- constant number_clauses : INTEGER := 1024;
- constant number_literals : INTEGER := 64;
- constant lit_range_st : INTEGER := 0;
- constant lit_range_end : INTEGER := 64;
- constant bool_stack_size : INTEGER := 1024;
- constant lit_stack_size : INTEGER := 64;
- constant formula_stack_size : INTEGER := 64;
+ constant NUMBER_CLAUSES : INTEGER := 1024;
+ constant NUMBER_LITERALS : INTEGER := 64;
+ constant LIT_RANGE_ST : INTEGER := 0;
+ constant LIT_RANGE_END : INTEGER := 64;
+ constant BOOL_STACK_SIZE : INTEGER := 1024;
+ constant LIT_STACK_SIZE : INTEGER := 64;
+ constant FORMULA_STACK_SIZE : INTEGER := 64;
  
  type lit is 
  record 
  	num : INTEGER range lit_range_st to lit_range_end;
  	val : std_logic;
  end record;
-
  type lit_array is array(number_literals downto 0) of lit;
 
  type clause is 
@@ -41,7 +40,6 @@ package Common is
  	lits : lit_array;
  	len : INTEGER range 0 to number_literals;
  end record;
-
  type clause_array is array(number_clauses downto 0) of clause;
 
  type formula is 
@@ -49,15 +47,14 @@ package Common is
 	clauses : clause_array;
 	len : INTEGER range 0 to number_clauses;
  end record;
-
  type formula_array is array(formula_stack_size downto 0) of formula;
 
- constant zero_lit : lit := (num=>0,val=>'0');
- constant zero_lit_array : lit_array := (others => zero_lit);
- constant zero_clause : clause := (lits=>zero_lit_array,len=>0);
- constant zero_clause_array : clause_array := (others => zero_clause);
- constant zero_formula : formula := (clauses=>zero_clause_array,len=>0);
- constant zero_formula_array : formula_array := (others => zero_formula);
+ constant ZERO_LIT : lit := (num=>0,val=>'0');
+ constant ZERO_LIT_ARRAY : lit_array := (others => zero_lit);
+ constant ZERO_CLAUSE : clause := (lits=>zero_lit_array,len=>0);
+ constant ZERO_CLAUSE_ARRAY : clause_array := (others => zero_clause);
+ constant ZERO_FORMULA : formula := (clauses=>zero_clause_array,len=>0);
+ constant ZERO_FORMULA_ARRAY : formula_array := (others => zero_formula);
 --
 -- Declare functions and procedure
 --
