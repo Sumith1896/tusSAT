@@ -27,4 +27,10 @@ TODO
 ----
 Decide on initialization convention for
 	i)  ended std_logic
-	
+
+
+
+
+REFRENCES
+---------
+http://www.csee.umbc.edu/portal/help/VHDL/operator.html
