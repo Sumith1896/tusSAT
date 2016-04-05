@@ -36,10 +36,10 @@ entity Stack_formula is
 	Port ( clock : in  STD_LOGIC;
          reset : in  STD_LOGIC;
          wr_en : in  STD_LOGIC;
-         rd_en : in  STD_LOGIC;
          pop : in  STD_LOGIC;
          din : in  formula;
          dout : out  formula;
+         front : out formula;
          full : out  STD_LOGIC;
          empty : out  STD_LOGIC);
 end Stack_formula;
@@ -72,6 +72,7 @@ begin
         data_out <= zero_formula;
         empty_signal <= '1';
         full_signal <= '0';
+        front <= zero_formula;
 
     elsif rising_edge(clock) then      
       -- PUSH
@@ -79,16 +80,17 @@ begin
         data(curr_size) <= data_in;
         curr_size <= curr_size + 1;
         temp := temp + 1;
-      
-      --READ
-      elsif rd_en='1' and empty_signal='0' then 
-        data_out <= data(curr_size-1);
-      
+
       --POP
       elsif pop = '1' and empty_signal='0' then 
         data_out <= data(curr_size-1);
         curr_size <= curr_size - 1;
         temp := temp - 1;
+      end if;
+
+      --FRONT
+      if temp > 0 then 
+        front <= data(temp-1);
       end if;
 
       if temp=(formula_stack_size) then

@@ -35,10 +35,10 @@ entity Stack_integer is
 	Port ( clock : in  STD_LOGIC;
          reset : in  STD_LOGIC;
          wr_en : in  STD_LOGIC;
-         rd_en : in  STD_LOGIC;
          pop : in  STD_LOGIC;
          din : in  lit;
          dout : out  lit;
+         front : out lit;
          full : out  STD_LOGIC;
          empty : out  STD_LOGIC);
 end Stack_integer;
@@ -55,7 +55,6 @@ signal data_out : lit;
 signal full_signal : STD_LOGIC := '0';
 signal empty_signal : STD_LOGIC := '1';
 begin
-  
   data_in <= din;
   dout <= data_out;
   full <= full_signal;
@@ -71,22 +70,26 @@ begin
       data_out <= zero_lit;
       empty_signal <= '1';
       full_signal <= '0';
+      front <= zero_lit;
+
     elsif rising_edge(clock) then
+
       -- PUSH
       if wr_en='1' and full_signal='0' then 
         data(curr_size) <= data_in;
         curr_size <= curr_size + 1;
         temp := temp + 1;
       
-      --READ
-      elsif rd_en='1' and empty_signal='0' then 
-        data_out <= data(curr_size-1);
-      
       --POP
       elsif pop = '1' and empty_signal='0' then 
         data_out <= data(curr_size-1);
         curr_size <= curr_size - 1;
         temp := temp - 1;
+      end if;
+
+      --FRONT
+      if temp > 0 then 
+        front <= data(temp-1);
       end if;
 
       if temp=(lit_stack_size) then

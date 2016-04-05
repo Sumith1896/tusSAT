@@ -36,10 +36,10 @@ entity Stack_bool is
 	Port ( clock : in  STD_LOGIC;
 		 reset : in  STD_LOGIC;
 		 wr_en : in  STD_LOGIC;
-		 rd_en : in  STD_LOGIC;
 		 pop : in  STD_LOGIC;
 		 din : in  STD_LOGIC;
 		 dout : out  STD_LOGIC;
+		 front : out STD_LOGIC;
 		 full : out  STD_LOGIC;
 		 empty : out  STD_LOGIC);
 end Stack_bool;
@@ -55,6 +55,7 @@ signal data_in : STD_LOGIC;
 signal data_out : STD_LOGIC;
 signal full_signal : STD_LOGIC := '0';
 signal empty_signal : STD_LOGIC := '1';
+
 begin
 	
 	data_in <= din;
@@ -72,6 +73,7 @@ begin
 			data_out <= '0';
 			empty_signal <= '1';
 			full_signal <= '0';
+			front <= '0';
 		
 		elsif rising_edge(clock) then
 			-- PUSH
@@ -80,15 +82,16 @@ begin
 				curr_size <= curr_size + 1;
 				temp := temp + 1;
 			
-			--READ
-			elsif rd_en='1' and empty_signal='0' then 
-				data_out <= data(curr_size-1);
-			
 			--POP
 			elsif pop = '1' and empty_signal='0' then 
 				data_out <= data(curr_size-1);
 				curr_size <= curr_size - 1;
 				temp := temp - 1;
+			end if;
+
+			--FRONT
+			if temp > 0 then 
+				front <= data(temp-1);
 			end if;
 
 			--SET_SIGNALS
