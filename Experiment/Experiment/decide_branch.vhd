@@ -47,7 +47,7 @@ signal lit_s : lit := ZERO_LIT;
 signal iterator1 : INTEGER := 0; -- iterator over clauses
 signal iterator2 : INTEGER := 0; -- iterator over literals
 signal iterator3 : INTEGER := 0; -- iterator over scores array 
-type score is array ((2*NUMBER_LITERALS) downto 0) of std_logic_vector(127 downto 0);  -- lit_i (val=0) ->2*i, lit_i (val=1) ->2*i-1
+type score is array ((2*NUMBER_LITERALS + 1) downto 0) of std_logic_vector(127 downto 0);  -- lit_i (val=0) ->2*i, lit_i (val=1) ->2*i+1
 signal j_score : score; 
 signal max_score :  std_logic_vector(127 downto 0);
 signal computing : STD_LOGIC := '0';
@@ -81,7 +81,7 @@ process(clock, reset)
 	    	lit_s <= ZERO_LIT;
 			iterator1 <= 0;
 			iterator2 <= 0;
-			iterator3 <= 0;
+			iterator3 <= 2; -- first two bits are set for the ZERO_LIT, ignore them
 			j_score <= (others => (others => '0'));
 			max_score <= (others => '0');
 	    	computing <= '1';
@@ -89,14 +89,14 @@ process(clock, reset)
 	    	compute_max <= '0';
 	    	ended <= '0';
 		elsif computing = '1' then
-			if (compute_max = '1' and iterator3 = (2*NUMBER_LITERALS + 1)) then
+			if (compute_max = '1' and iterator3 = (2*NUMBER_LITERALS + 2)) then
 				computing <= '0';
 				finished <= '1';
 				-- find max
 			elsif (compute_max = '1') then
 				if (max_score < j_score(iterator3)) then
 					max_score <= j_score(iterator3);
-					lit_s <= (num=>((iterator3+1)/2), val=>is_odd(iterator3) );
+					lit_s <= (num=>((iterator3)/2), val=>is_odd(iterator3) );
 				end if;
 				iterator3 <= iterator3 + 1;
 			--elsif formula_s.clauses(iterator1).len = 0 then -- check this
