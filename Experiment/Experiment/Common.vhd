@@ -10,6 +10,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
+library work;
 package Common is
 
 -- type <new_type> is
@@ -58,12 +59,36 @@ package Common is
 --
 -- Declare functions and procedure
 --
+	function is_odd (val : integer) return std_logic;
+	function logic_to_int (val : std_logic) return integer;
 -- function <function_name>  (signal <signal_name> : in <type_declaration>) return <type_declaration>;
 -- procedure <procedure_name> (<type_declaration> <constant_name>	: in <type_declaration>);
 --
 end Common;
 
 package body Common is
+
+	function is_odd(val : integer) return std_logic is
+		variable result : std_logic;
+	begin
+		if ( (val mod 2) = 0 ) then
+			result := '0';
+		else
+			result := '1';
+		end if;
+	   return result;
+	end;
+	
+	function logic_to_int (val : std_logic) return integer is
+		variable result : integer;
+	begin
+		if(val = '1') then
+			result := 1;
+		else
+			result := 0;
+		end if;
+		return result;
+	end;
 
 ---- Example 1
 --  function <function_name>  (signal <signal_name> : in <type_declaration>  ) return <type_declaration> is
