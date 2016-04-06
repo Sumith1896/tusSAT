@@ -47,10 +47,11 @@ signal lit_s : lit := ZERO_LIT;
 signal iterator1 : INTEGER := 0; -- iterator over clauses
 signal iterator2 : INTEGER := 0; -- iterator over literals
 signal iterator3 : INTEGER := 0; -- iterator over scores array 
-type score is array ((2*NUMBER_LITERALS + 1) downto 0) of std_logic_vector(75 downto 0);  -- lit_i (val=0) ->2*i, lit_i (val=1) ->2*i+1
+subtype my_type is  std_logic_vector(75 downto 0);
+type score is array ((2*NUMBER_LITERALS + 1) downto 0) of my_type;  -- lit_i (val=0) ->2*i, lit_i (val=1) ->2*i+1
 signal j_score : score; 
-signal max_score :  std_logic_vector(75 downto 0);
-signal computing : STD_LOGIC := '0';
+signal max_score :  my_type;
+signal computing : STD_LOGIC := '0';`
 signal finished : STD_LOGIC := '0';
 signal compute_max : STD_LOGIC := '0';
 -- JS implemements score as sum of 2^(-|w|)
@@ -112,7 +113,7 @@ process(clock, reset)
 				j_score(formula_s.clauses(iterator1).lits(iterator2).num + logic_to_int(formula_s.clauses(iterator1).lits(iterator2).val)) 
 				<= 
 				j_score(formula_s.clauses(iterator1).lits(iterator2).num + logic_to_int(formula_s.clauses(iterator1).lits(iterator2).val))
-					+ ((64-formula_s.clauses(iterator1).len) => '1', others =>'0');
+					+ my_type'((64-formula_s.clauses(iterator1).len) => '1', others =>'0');
 				iterator2 <= iterator2 +1;
 				--lit_s <= formula_s.clauses(iterator).lits(0);
 				--computing <= '0';
