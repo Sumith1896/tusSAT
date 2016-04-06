@@ -42,6 +42,8 @@ end controller;
 
 architecture Behavioral of controller is
 
+--Defining components in Architecture
+
 component DB_Kernel is
     Port ( clock : in  STD_LOGIC;
            reset : in  STD_LOGIC;
@@ -121,12 +123,13 @@ component read_store is
            ended: out STD_LOGIC);
 end component;
 
+--State definitions to be used
 type state is (IDLE, BEFORE_INP, INPING, BACTRACK_POPDB_STACK, BACKTRACK_POPLIT_STACK, NEGATE_BEFORE_PROP, BEFORE_POPULATE_STACK, 
               POPULATE_STACK, BEFORE_PROP, PROPAGATING, AFTER_PROP, BEFORE_KERNELIZE, KERNELIZING, AFTER_KERNELIZE,
               BEFORE_DB, DBING, AFTER_DB, UNSAT, RETURN_MODEL, FILL_VECT, SAT_RETURN, PROPAGATE);
 signal present_state : state := BEFORE_INP;
---signal called_from_state : state := IDLE;
 
+--Defined signals for port-mapping
 signal Kernel_find : STD_LOGIC;
 signal Kernel_in_formula : formula;
 signal Kernel_ended : STD_LOGIC;
@@ -186,6 +189,7 @@ signal IP_i : STD_LOGIC_VECTOR((number_literals-1) downto 0);
 signal IP_formula_res: formula;
 signal IP_ended: STD_LOGIC;
 
+--Other signals to be used in code
 signal F : formula;
 signal C : lit;
 signal to_populate : lit;
@@ -193,9 +197,11 @@ signal output_vect : STD_LOGIC_VECTOR((number_literals-1) downto 0);
 signal temp_sat : STD_LOGIC;
 signal temp_unsat : STD_LOGIC;
 signal next_Backtrack : STD_LOGIC;
+signal wait_delay : INTEGER;
 
 begin
 
+--Port mapping
 Kernel : DB_Kernel
 port map(
 clock => clock,
@@ -298,6 +304,7 @@ ended => IP_ended
 process(clock,reset)
 begin
 if reset='1' then
+--Reset all variables
   ended <= '0';
   sat <= '0';
   model <= (others => '0');
@@ -327,8 +334,11 @@ if reset='1' then
   Backtrack_St_wr_en <= '0';
   Backtrack_St_pop <= '0';
   Backtrack_St_din <= '0';
+  present_state <= BEFORE_INP;
+  wait_delay <= 0;
 
 elsif rising_edge(clock) then
+--Reset all input variables to entities to make sure that they do not stay high unneccesarily
   Kernel_find <= '0';
   DB_find <= '0';
   Prop_find <= '0';
@@ -341,24 +351,34 @@ elsif rising_edge(clock) then
   Backtrack_St_wr_en <= '0';
   Backtrack_St_pop <= '0';
 
+  if wait_delay = 0 then
+    
   case(present_state) is
-    when BEFORE_INP =>
+    when BEFORE_INP => -- Initial State
       if load = '1' then
         present_state <= INPING;
       end if;
     
-    when INPING =>
+    when INPING => 
+    -- Wait for Input parser to finish parsing
+    -- After it finishes, Store output
+    -- Start processing Formula (Start with Kernelization)
       if IP_ended = '1' then
         F <= IP_formula_res;
         present_state <= BEFORE_KERNELIZE;
       end if;
 
     when BEFORE_KERNELIZE=>
+     --Initialte Kernelization
+     --Feed formula as input to Kernel entity
       Kernel_in_formula <= F;
       Kernel_find <= '1';
       present_state <= KERNELIZING;
 
     when KERNELIZING =>
+    --Wait for Kernelization to end
+    --While waiting, store literals outputted from Karnelization entity in Lit_Stack
+    --(These literals are propagated during Kernelization)
       if (Kernel_ended = '1') then
         F <= Kernel_out_formula;
         temp_sat <= Kernel_sat;
@@ -370,6 +390,9 @@ elsif rising_edge(clock) then
       end if;
 
     when AFTER_KERNELIZE =>
+     --Depending if formula after kernelization returns SAT or UNSAT,
+     --RETURN SAT or BACKTRACK
+     --If None, Move to decide DecisionVariable
       if temp_sat = '1' then
         present_state <= RETURN_MODEL;
       elsif temp_unsat = '1' then
@@ -379,39 +402,51 @@ elsif rising_edge(clock) then
       end if ;
 
     when BACTRACK_POPDB_STACK => 
+    --Backtrack_Stack
+    --RETURN UNSAT if stack is empty
+
+    --Else pop until you find a '1' in backtrack stack
+    --And flip this literal and propagate it again.
       if(Backtrack_St_empty = '1') then
         present_state <= UNSAT;
       elsif(Backtrack_St_front = '1') then
         Backtrack_St_pop <= '1';
         DV_St_pop <= '1';
         Formula_St_pop <= '1';
+        wait_delay <= 1;
       else
         present_state <= BACKTRACK_POPLIT_STACK;
       end if;
 
     when BACKTRACK_POPLIT_STACK =>
-      if(Lit_St_front /= DV_St_front) then
+    --Popping excess lits from Literal Stack
+      if(Lit_St_front.num /= DV_St_front.num) then
         Lit_St_pop <= '1';
+        wait_delay <= 1;
       else
         Lit_St_pop <= '1';
-        C <= DV_St_front;
         DV_St_pop <= '1';
         Backtrack_St_pop <= '1';
-        F <= Formula_St_front;
         Formula_St_pop <= '1';
+        F <= Formula_St_front;
+        C <= DV_St_front;
         present_state <= NEGATE_BEFORE_PROP;
+        wait_delay <= 1;
       end if;
 
     when NEGATE_BEFORE_PROP =>
+    --FLipping
       C.val <= not C.val;
       next_Backtrack <= '1';
       present_state <= PROPAGATE;
 
     when PROPAGATE =>
+    --Propagate flipped literal
       to_populate <= C;
       present_state <= BEFORE_POPULATE_STACK;
 
     when BEFORE_POPULATE_STACK =>
+    --Populate Stacks before propagating
       Formula_St_din <= F;
       Backtrack_St_din <= next_Backtrack;
       DV_St_din <= to_populate;
@@ -419,6 +454,7 @@ elsif rising_edge(clock) then
       present_state <= POPULATE_STACK;
     
     when POPULATE_STACK =>
+    --Populate Stacks before propagating
       DV_St_wr_en <= '1';
       Lit_St_wr_en <= '1';
       Backtrack_St_wr_en <= '1'; 
@@ -427,12 +463,14 @@ elsif rising_edge(clock) then
       present_state <= BEFORE_PROP;
 
     when BEFORE_PROP => 
+    --Feed formula, literal for propagation
       Prop_find <= '1';
       Prop_in_formula <= F;
       Prop_in_lit <= C;
       present_state <= PROPAGATING;
 
     when PROPAGATING =>
+    --Wait for prop to end
       if(Prop_ended = '1') then
         F <= Prop_out_formula;
         temp_sat <= Prop_empty_formula;
@@ -441,6 +479,9 @@ elsif rising_edge(clock) then
       end if;
 
     when AFTER_PROP =>
+     --Depending if formula after propagation returns SAT or UNSAT,
+     --RETURN SAT or BACKTRACK
+     --Else make next Decision
       if(temp_sat = '1') then
         present_state <= RETURN_MODEL;
       elsif(temp_unsat = '1') then
@@ -450,11 +491,13 @@ elsif rising_edge(clock) then
       end if;
 
     when BEFORE_DB => 
+    --Feed formula to decide_branch
       DB_formula_in <= F;
       DB_find <= '1';
       present_state <= DBING;
 
     when DBING => 
+    --Waiting for decision to be made
       if DB_ended = '1' then
         C <= DB_lit_out;
         next_Backtrack <= '0';
@@ -462,14 +505,17 @@ elsif rising_edge(clock) then
       end if ;
 
     when AFTER_DB =>
+    --Populate stacks with decision made
       to_populate <= C;
       present_state <= BEFORE_POPULATE_STACK;
 
     when UNSAT => 
+    --Return unsat
       ended <= '1';
       sat <= '0';
 
     when RETURN_MODEL =>
+    --Make model from litstack
       output_vect <= (others => '0');
       present_state <= FILL_VECT;
 
@@ -477,11 +523,13 @@ elsif rising_edge(clock) then
       if Lit_St_empty = '0' then
         output_vect(Lit_St_front.num-1) <= Lit_St_front.val;
         Lit_St_pop <= '1';
+        wait_delay <= 1;
       else
         present_state <= SAT_RETURN;
       end if ;
 
     when SAT_RETURN =>
+    --Return Sat
       ended <= '1';
       sat <= '1';
       model <= output_vect;
@@ -490,6 +538,9 @@ elsif rising_edge(clock) then
       present_state <= IDLE;
 
   end case ;
+  else
+    wait_delay <= wait_delay - 1;
+  end if;
 end if;
 end process;
 

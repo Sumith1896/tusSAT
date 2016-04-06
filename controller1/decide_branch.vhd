@@ -71,7 +71,8 @@ process(clock, reset)
 			if formula_s.clauses(iterator).len = 0 then
 				iterator <= iterator + 1;
 			else
-				lit_s <= formula_s.clauses(iterator).lits(0);
+				lit_s.num <= formula_s.clauses(iterator).lits(0).num;
+				lit_s.val <= not formula_s.clauses(iterator).lits(0).val;
 				computing <= '0';
 				ended <= '1';
 			end if;

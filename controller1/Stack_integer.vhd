@@ -45,7 +45,7 @@ end Stack_integer;
 
 architecture Behavioral of Stack_integer is
 --DATA VARIABLES
-type  mem_type is array (lit_stack_size downto 0) of lit;
+type  mem_type is array (lit_stack_size-1 downto 0) of lit;
 signal data : mem_type := (others => zero_lit);
 signal curr_size : INTEGER := 0;
 
@@ -83,6 +83,7 @@ begin
       --POP
       elsif pop = '1' and empty_signal='0' then 
         data_out <= data(curr_size-1);
+        data(curr_size-1) <= zero_lit;
         curr_size <= curr_size - 1;
         temp := temp - 1;
       end if;

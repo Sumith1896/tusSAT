@@ -46,7 +46,7 @@ end Stack_bool;
 
 architecture Behavioral of Stack_bool is
 --DATA VARIABLES
-type  mem_type is array (bool_stack_size downto 0) of STD_LOGIC;
+type  mem_type is array (bool_stack_size - 1 downto 0) of STD_LOGIC;
 signal data : mem_type := (others => '0');
 signal curr_size : INTEGER := 0;
 

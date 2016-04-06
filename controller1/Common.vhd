@@ -20,13 +20,14 @@ package Common is
 --
 -- Declare constants
 --
- constant NUMBER_CLAUSES : INTEGER := 5;
- constant NUMBER_LITERALS : INTEGER := 5;
+
+ constant NUMBER_CLAUSES : INTEGER := 1000;
+ constant NUMBER_LITERALS : INTEGER := 64;
  constant LIT_RANGE_ST : INTEGER := 0;
- constant LIT_RANGE_END : INTEGER := 5;
- constant BOOL_STACK_SIZE : INTEGER := 5;
- constant LIT_STACK_SIZE : INTEGER := 5;
- constant FORMULA_STACK_SIZE : INTEGER := 5;
+ constant LIT_RANGE_END : INTEGER := NUMBER_LITERALS;
+ constant BOOL_STACK_SIZE : INTEGER := NUMBER_LITERALS;
+ constant LIT_STACK_SIZE : INTEGER := NUMBER_LITERALS;
+ constant FORMULA_STACK_SIZE : INTEGER := NUMBER_LITERALS;
  
  type lit is 
  record 
