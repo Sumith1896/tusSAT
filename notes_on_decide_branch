@@ -1,0 +1,18 @@
+http://www.cs.utexas.edu/~isil/cs780-02/matthew-pirocchi.pdf
+
+As suggested by the presentation(link above), BOHR and MOM are
+heuristics that were popular until mid nineties, by late nineties
+they were obsolete. 
+
+With reference to 
+{https://pdfs.semanticscholar.org/c4d3/992a801af2862011e03eeabfdaa5a926393f.pdf}
+We will implement both JS-OS and DLIS since it is uncertain that which will
+perform faster on FPGA/hardware as contrasted to evidence suggest in the paper,
+in which case experiments were made on software implemented solvers.
+
+The only advantage MOM has is that it may be slightly easier in hardware
+implementation.
+
+VSIDS is a heuristic which can be used only when the algorithm uses
+clause based learning.
+

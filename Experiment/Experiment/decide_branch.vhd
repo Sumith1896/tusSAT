@@ -82,4 +82,3 @@ process(clock, reset)
 
 end process;	
 end Behavioral;
-
