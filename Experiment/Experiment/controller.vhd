@@ -121,6 +121,12 @@ component read_store is
            ended: out STD_LOGIC);
 end component;
 
+type state is (IDLE, BEFORE_INP, INPING, BACTRACK_POPDB_STACK, BACKTRACK_POPLIT_STACK, NEGATE_BEFORE_PROP, BEFORE_POPULATE_STACK, 
+              POPULATE_STACK, BEFORE_PROP, PROPAGATING, AFTER_PROP, BEFORE_KERNELIZE, KERNELIZING, AFTER_KERNELIZE,
+              BEFORE_DB, DBING, AFTER_DB, UNSAT, RETURN_MODEL, FILL_VECT, SAT_RETURN, PROPAGATE);
+signal present_state : state := BEFORE_INP;
+--signal called_from_state : state := IDLE;
+
 signal Kernel_find : STD_LOGIC;
 signal Kernel_in_formula : formula;
 signal Kernel_ended : STD_LOGIC;
@@ -179,6 +185,15 @@ signal IP_load :  STD_LOGIC;
 signal IP_i : STD_LOGIC_VECTOR((number_literals-1) downto 0);
 signal IP_formula_res: formula;
 signal IP_ended: STD_LOGIC;
+
+signal F : formula;
+signal C : lit;
+signal to_populate : lit;
+signal to_prop : lit;
+signal output_vect : STD_LOGIC_VECTOR((number_literals-1) downto 0);
+signal temp_sat : STD_LOGIC;
+signal temp_unsat : STD_LOGIC;
+signal next_Backtrack : STD_LOGIC;
 
 begin
 
@@ -275,11 +290,209 @@ IP : read_store
 port map(
 clock => clock,
 reset => reset,
-load => IP_load,
-i => IP_i,
+load => load,
+i => i,
 formula_res => IP_formula_res,
 ended => IP_ended
 );
+
+process(clock,reset)
+begin
+if reset='1' then
+  ended <= '0';
+  sat <= '0';
+  model <= (others => '0');
+  F <= zero_formula;
+  C<= zero_lit;
+  to_populate<= zero_lit;
+  to_prop<= zero_lit;
+  output_vect<= (others => '0');
+  temp_sat<= '0';
+  temp_unsat<= '0';
+  next_Backtrack<= '0';
+  Kernel_find <= '0';
+  Kernel_in_formula <= zero_formula;
+  DB_find <= '0';
+  DB_formula_in <= zero_formula;
+  Prop_find <= '0';
+  Prop_in_formula <= zero_formula;
+  Prop_in_lit <= zero_lit;
+  Lit_St_wr_en <= '0';
+  Lit_St_pop <= '0';
+  Lit_St_din <= zero_lit;
+  DV_St_wr_en <= '0';
+  DV_St_pop <= '0';
+  DV_St_din <= zero_lit;
+  Formula_St_wr_en <= '0';
+  Formula_St_pop <= '0';
+  Formula_St_din <= zero_formula;
+  Backtrack_St_wr_en <= '0';
+  Backtrack_St_pop <= '0';
+  Backtrack_St_din <= '0';
+
+elsif rising_edge(clock) then
+  Kernel_find <= '0';
+  DB_find <= '0';
+  Prop_find <= '0';
+  Lit_St_wr_en <= '0';
+  Lit_St_pop <= '0';
+  DV_St_wr_en <= '0';
+  DV_St_pop <= '0';
+  Formula_St_wr_en <= '0';
+  Formula_St_pop <= '0';
+  Backtrack_St_wr_en <= '0';
+  Backtrack_St_pop <= '0';
+
+  case(present_state) is
+    when BEFORE_INP =>
+      if load = '1' then
+        present_state <= INPING;
+      end if;
+    
+    when INPING =>
+      if IP_ended = '1' then
+        F <= IP_formula_res;
+        present_state <= BEFORE_KERNELIZE;
+      end if;
+
+    when BEFORE_KERNELIZE=>
+      Kernel_in_formula <= F;
+      Kernel_find <= '1';
+      present_state <= KERNELIZING;
+
+    when KERNELIZING =>
+      if (Kernel_ended = '1') then
+        F <= Kernel_out_formula;
+        temp_sat <= Kernel_sat;
+        temp_unsat <= Kernel_unsat;
+        present_state <= AFTER_KERNELIZE;
+      elsif Kernel_propagating = '1' then
+        Lit_St_din <= Kernel_out_lit;
+        Lit_St_wr_en <= '1';
+      end if;
+
+    when AFTER_KERNELIZE =>
+      if temp_sat = '1' then
+        present_state <= RETURN_MODEL;
+      elsif temp_unsat = '1' then
+        present_state <= BACTRACK_POPDB_STACK;
+      else
+        present_state <= BEFORE_DB;        
+      end if ;
+
+    when BACTRACK_POPDB_STACK => 
+      if(Backtrack_St_empty = '1') then
+        present_state <= UNSAT;
+      elsif(Backtrack_St_front = '1') then
+        Backtrack_St_pop <= '1';
+        DV_St_pop <= '1';
+        Formula_St_pop <= '1';
+      else
+        present_state <= BACKTRACK_POPLIT_STACK;
+      end if;
+
+    when BACKTRACK_POPLIT_STACK =>
+      if(Lit_St_front /= DV_St_front) then
+        Lit_St_pop <= '1';
+      else
+        Lit_St_pop <= '1';
+        C <= DV_St_front;
+        DV_St_pop <= '1';
+        Backtrack_St_pop <= '1';
+        F <= Formula_St_front;
+        Formula_St_pop <= '1';
+        present_state <= NEGATE_BEFORE_PROP;
+      end if;
+
+    when NEGATE_BEFORE_PROP =>
+      C.val <= not C.val;
+      next_Backtrack <= '1';
+      present_state <= PROPAGATE;
+
+    when PROPAGATE =>
+      to_populate <= C;
+      present_state <= BEFORE_POPULATE_STACK;
+
+    when BEFORE_POPULATE_STACK =>
+      Formula_St_din <= F;
+      Backtrack_St_din <= next_Backtrack;
+      DV_St_din <= C;
+      Lit_St_din <= C;
+      present_state <= POPULATE_STACK;
+    
+    when POPULATE_STACK =>
+      DV_St_wr_en <= '1';
+      Lit_St_wr_en <= '1';
+      Backtrack_St_wr_en <= '1'; 
+      Formula_St_wr_en <= '1';
+      C <= to_populate;
+      present_state <= BEFORE_PROP;
+
+    when BEFORE_PROP => 
+      Prop_find <= '1';
+      to_prop <= C;
+      present_state <= PROPAGATING;
+
+    when PROPAGATING =>
+      if(Prop_ended = '1') then
+        F <= Prop_out_formula;
+        temp_sat <= Prop_empty_formula;
+        temp_unsat <= Prop_empty_clause;
+        present_state <= AFTER_PROP;
+      end if;
+
+    when AFTER_PROP =>
+      if(temp_sat = '1') then
+        present_state <= RETURN_MODEL;
+      elsif(temp_unsat = '1') then
+        present_state <= BACTRACK_POPDB_STACK;
+      else
+        present_state <= BEFORE_KERNELIZE;
+      end if;
+
+    when BEFORE_DB => 
+      DB_formula_in <= F;
+      DB_find <= '1';
+      present_state <= DBING;
+
+    when DBING => 
+      if DB_ended = '1' then
+        C <= DB_lit_out;
+        next_Backtrack <= '0';
+        present_state <= AFTER_DB;
+      end if ;
+
+    when AFTER_DB =>
+      to_populate <= C;
+      present_state <= BEFORE_POPULATE_STACK;
+
+    when UNSAT => 
+      ended <= '1';
+      sat <= '0';
+
+    when RETURN_MODEL =>
+      output_vect <= (others => '0');
+      present_state <= FILL_VECT;
+
+    when FILL_VECT =>
+      if Lit_St_empty = '0' then
+        output_vect(Lit_St_front.num) <= Lit_St_front.val;
+        Lit_St_pop <= '1';
+      else
+        present_state <= SAT_RETURN;
+      end if ;
+
+    when SAT_RETURN =>
+      ended <= '1';
+      sat <= '1';
+      model <= output_vect;
+
+    when OTHERS =>
+      present_state <= IDLE;
+
+  end case ;
+end if;
+end process;
 
 end Behavioral;
 
