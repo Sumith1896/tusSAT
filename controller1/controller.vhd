@@ -189,7 +189,6 @@ signal IP_ended: STD_LOGIC;
 signal F : formula;
 signal C : lit;
 signal to_populate : lit;
-signal to_prop : lit;
 signal output_vect : STD_LOGIC_VECTOR((number_literals-1) downto 0);
 signal temp_sat : STD_LOGIC;
 signal temp_unsat : STD_LOGIC;
@@ -305,7 +304,6 @@ if reset='1' then
   F <= zero_formula;
   C<= zero_lit;
   to_populate<= zero_lit;
-  to_prop<= zero_lit;
   output_vect<= (others => '0');
   temp_sat<= '0';
   temp_unsat<= '0';
@@ -416,8 +414,8 @@ elsif rising_edge(clock) then
     when BEFORE_POPULATE_STACK =>
       Formula_St_din <= F;
       Backtrack_St_din <= next_Backtrack;
-      DV_St_din <= C;
-      Lit_St_din <= C;
+      DV_St_din <= to_populate;
+      Lit_St_din <= to_populate;
       present_state <= POPULATE_STACK;
     
     when POPULATE_STACK =>
@@ -430,7 +428,8 @@ elsif rising_edge(clock) then
 
     when BEFORE_PROP => 
       Prop_find <= '1';
-      to_prop <= C;
+      Prop_in_formula <= F;
+      Prop_in_lit <= C;
       present_state <= PROPAGATING;
 
     when PROPAGATING =>

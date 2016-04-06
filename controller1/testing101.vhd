@@ -94,25 +94,24 @@ BEGIN
    begin		
       -- hold reset state for 100 ns.
 		
-		
 wait for 100 ns;	
 reset <= '1';
 wait for 2*clock_period;
 reset <= '0';
 load<='1';
-i<="010";
-wait for clock_period;
-load<='1';
 i<="100";
 wait for clock_period;
 load<='1';
+i<="000";
+wait for clock_period;
+load<='1';
+i<="000";
+wait for clock_period;
+load<='1';
 i<="010";
 wait for clock_period;
 load<='1';
-i<="001";
-wait for clock_period;
-load<='1';
-i<="101";
+i<="000";
 wait for clock_period;
 load<='1';
 i<="000";

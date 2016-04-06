@@ -105,6 +105,11 @@ process(clock, reset)
 					end if;
 					iiterator <= iiterator + 1;
 				else
+
+					if row_iterator = 0 then
+						temp_formula.len <= temp_formula.len - 1;
+					end if ;
+
 					iiterator <= 0;
 					temp_formula.clauses(oiterator).len <= row_iterator;
 					row_iterator <= 0;

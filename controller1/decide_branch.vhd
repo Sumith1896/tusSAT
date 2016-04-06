@@ -73,11 +73,11 @@ process(clock, reset)
 			else
 				lit_s <= formula_s.clauses(iterator).lits(0);
 				computing <= '0';
-				finished <= '1';
+				ended <= '1';
 			end if;
-			ended <= '0';
-		elsif finished = '1' then
-			ended <= '1';
+			--ended <= '0';
+		--elsif finished = '1' then
+		--	computing <= 0;
 		end if;
 	end if;
 

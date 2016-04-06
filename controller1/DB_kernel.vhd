@@ -272,10 +272,12 @@ elsif rising_edge(clock) then
           --out_lit <= ZERO_LIT;
 
           present_state <= IDLE;
+          s_finding <= '0';
         end if;
 
       when IDLE =>
         present_state <= IDLE;
+        s_finding <= '0';
     end case ;
   end if;
 end if;
