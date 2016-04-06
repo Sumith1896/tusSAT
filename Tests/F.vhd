@@ -60,7 +60,7 @@ ARCHITECTURE behavior OF testing101 IS
    signal load : std_logic := '0';
    signal i : std_logic_vector(4 downto 0) := (others => '0');
 
-  --Outputs
+ 	--Outputs
    signal ended : std_logic;
    signal sat : std_logic;
    signal model : std_logic_vector(4 downto 0);
@@ -70,7 +70,7 @@ ARCHITECTURE behavior OF testing101 IS
  
 BEGIN
  
-  -- Instantiate the Unit Under Test (UUT)
+	-- Instantiate the Unit Under Test (UUT)
    uut: controller PORT MAP (
           clock => clock,
           reset => reset,
@@ -84,18 +84,18 @@ BEGIN
    -- Clock process definitions
    clock_process :process
    begin
-    clock <= '0';
-    wait for clock_period/2;
-    clock <= '1';
-    wait for clock_period/2;
+		clock <= '0';
+		wait for clock_period/2;
+		clock <= '1';
+		wait for clock_period/2;
    end process;
  
 
    -- Stimulus process
    stim_proc: process
-   begin    
+   begin		
       -- hold reset state for 100 ns.
-    
+		
 wait for 100 ns;  
 reset <= '1';
 wait for 2*clock_period;

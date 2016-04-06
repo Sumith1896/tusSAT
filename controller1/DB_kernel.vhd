@@ -192,8 +192,18 @@ elsif rising_edge(clock) then
     case( present_state ) is
       
       when UC_b =>
-        UC_find <= '1';
-        present_state <= UC_r;
+        if s_in_formula = ZERO_FORMULA then
+          ended <= '1';
+          sat <= '1';
+          unsat <= '0';
+          propagating <= '0';
+          out_formula <= s_in_formula;
+          present_state <= IDLE;
+          s_finding <= '0';
+        else
+          UC_find <= '1';
+          present_state <= UC_r;
+        end if ;
       
       when UC_r =>
         if UC_ended = '1' then
@@ -234,6 +244,7 @@ elsif rising_edge(clock) then
           propagating <= '0';
           out_formula <= s_in_formula;
           present_state <= IDLE;
+          s_finding <= '0';
           --out_lit <= ZERO_LIT;
         elsif s_unsat = '1' then
           -- RETURN UNSAT
@@ -242,6 +253,8 @@ elsif rising_edge(clock) then
           unsat <= '1';
           propagating <= '0';
           out_formula <= s_in_formula;
+          present_state <= IDLE;
+          s_finding <= '0';
           --out_lit <= ZERO_LIT;
         else
             present_state <= called_from_state;

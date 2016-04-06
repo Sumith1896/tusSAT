@@ -1,5 +1,5 @@
 --ANSWER TO THIS TEST BENCH
---{cnf_1: True, cnf_5: False, cnf_4: False, cnf_2: False, cnf_3: False}
+--{cnf_12: True, cnf_16: True, cnf_6: True, cnf_13: True, cnf_2: False, cnf_9: True, cnf_10: False, cnf_11: False, cnf_4: False, cnf_14: False, cnf_8: True, cnf_3: True, cnf_1: True, cnf_7: True, cnf_15: False, cnf_5: True}
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
@@ -46,10 +46,10 @@ ARCHITECTURE behavior OF testing101 IS
          clock : IN  std_logic;
          reset : IN  std_logic;
          load : IN  std_logic;
-         i : IN  std_logic_vector(4 downto 0);
+         i : IN  std_logic_vector(15 downto 0);
          ended : OUT  std_logic;
          sat : OUT  std_logic;
-         model : OUT  std_logic_vector(4 downto 0)
+         model : OUT  std_logic_vector(15 downto 0)
         );
     END COMPONENT;
     
@@ -58,19 +58,19 @@ ARCHITECTURE behavior OF testing101 IS
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
    signal load : std_logic := '0';
-   signal i : std_logic_vector(4 downto 0) := (others => '0');
+   signal i : std_logic_vector(15 downto 0) := (others => '0');
 
-  --Outputs
+ 	--Outputs
    signal ended : std_logic;
    signal sat : std_logic;
-   signal model : std_logic_vector(4 downto 0);
+   signal model : std_logic_vector(15 downto 0);
 
    -- Clock period definitions
    constant clock_period : time := 10 ns;
  
 BEGIN
  
-  -- Instantiate the Unit Under Test (UUT)
+	-- Instantiate the Unit Under Test (UUT)
    uut: controller PORT MAP (
           clock => clock,
           reset => reset,
@@ -84,18 +84,18 @@ BEGIN
    -- Clock process definitions
    clock_process :process
    begin
-    clock <= '0';
-    wait for clock_period/2;
-    clock <= '1';
-    wait for clock_period/2;
+		clock <= '0';
+		wait for clock_period/2;
+		clock <= '1';
+		wait for clock_period/2;
    end process;
  
 
    -- Stimulus process
    stim_proc: process
-   begin    
+   begin		
       -- hold reset state for 100 ns.
-    
+		
 wait for 100 ns;  
 reset <= '1';
 wait for 2*clock_period;
@@ -103,25 +103,77 @@ reset <= '0';
 
 load <= '1';
 
-i <= "11100";
+i <= "1000000010000000";
 wait for clock_period;
-i <= "00000";
+i <= "0000000000000000";
 wait for clock_period;
-i <= "00000";
+i <= "0101000000000000";
 wait for clock_period;
-i <= "10001";
+i <= "0000000000000000";
 wait for clock_period;
-i <= "10100";
+i <= "0100000000000001";
 wait for clock_period;
-i <= "01000";
+i <= "0000000000000000";
 wait for clock_period;
-i <= "00011";
+i <= "0011000000000000";
 wait for clock_period;
-i <= "00100";
+i <= "0000000000000000";
 wait for clock_period;
-i <= "10000";
+i <= "0000110000000000";
 wait for clock_period;
-i <= "00110";
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000001100000000";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000000001100000";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000000000001100";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000010000000000";
+wait for clock_period;
+i <= "0000001000000000";
+wait for clock_period;
+i <= "0000000000010000";
+wait for clock_period;
+i <= "0000000000001000";
+wait for clock_period;
+i <= "0000000000001000";
+wait for clock_period;
+i <= "0000000000000100";
+wait for clock_period;
+i <= "0000000000000100";
+wait for clock_period;
+i <= "0000000100000000";
+wait for clock_period;
+i <= "0000000000000010";
+wait for clock_period;
+i <= "0000000000000001";
+wait for clock_period;
+i <= "0000000000000001";
+wait for clock_period;
+i <= "0100000000000000";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0110000000000000";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000010000000010";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000000010100000";
+wait for clock_period;
+i <= "0000000000000000";
+wait for clock_period;
+i <= "0000000000110000";
 wait for clock_period;
 
 load <= '0';
