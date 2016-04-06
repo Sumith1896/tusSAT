@@ -154,7 +154,7 @@ PropL : Propagate_Literal
 process(clock,reset)
 begin
 if reset='1' then
-  ended <= '1';
+  ended <= '0';
   sat <= '0';
   unsat <= '0';
   out_formula <= ZERO_FORMULA;
@@ -168,18 +168,19 @@ if reset='1' then
 
   UC_find <= '0';
   PL_find <= '0';
-
   PropL_find <= '0';
   PropL_in_lit <= ZERO_LIT;
 
 elsif rising_edge(clock) then
-
+  ended <= '0';
+  UC_find <= '0';
+  PL_find <= '0';
+  PropL_find <= '0';
  if find='1' and s_finding = '0' then
     s_in_formula <= in_formula;
     s_finding <= '1';
     ended <= '0';
     present_state <= UC_b;
-    ended <= '0';
     sat <= '0';
     unsat <= '0';
     out_formula <= ZERO_FORMULA;
@@ -213,6 +214,7 @@ elsif rising_edge(clock) then
         PropL_find <= '1';
         propagating <= '1';
         out_lit <= C;
+        PropL_in_lit <= C;
         present_state <= PROP_r;
 
       when PROP_r =>
@@ -231,6 +233,7 @@ elsif rising_edge(clock) then
           unsat <= '0';
           propagating <= '0';
           out_formula <= s_in_formula;
+          present_state <= IDLE;
           --out_lit <= ZERO_LIT;
         elsif s_unsat = '1' then
           -- RETURN UNSAT

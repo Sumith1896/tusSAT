@@ -75,6 +75,7 @@ process(clock, reset)
 	    -- PARSE
 	    prev_load <= load;
 	    prev_load1 <= prev_load;	
+		ended <= '0';
 	    if load='1' and computing = '0'then 
 	    	bit_vec(noofcycles) <= i;
 	      	noofcycles <= noofcycles + 1;
@@ -87,7 +88,7 @@ process(clock, reset)
 		elsif load = '0' and prev_load = '0' and prev_load1 = '1' and computing = '0' then
 			computing <= '1';
 			noofclauses <= noofcycles/2;
-			temp_formula.len <= noofclauses;
+			temp_formula.len <= noofcycles/2;
 			ended <= '0';
 
 		elsif computing = '1' then
