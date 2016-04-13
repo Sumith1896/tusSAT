@@ -5,3 +5,5 @@
 !.gitignore
 !.git/
 !*/
+!*.py
+!*.pdf
