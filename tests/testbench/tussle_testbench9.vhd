@@ -1,3 +1,5 @@
+--ANSWER TO THIS TEST BENCH
+--{a: False, b: True}
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
@@ -44,10 +46,10 @@ ARCHITECTURE behavior OF testing101 IS
          clock : IN  std_logic;
          reset : IN  std_logic;
          load : IN  std_logic;
-         i : IN  std_logic_vector(3 downto 0);
+         i : IN  std_logic_vector(2 downto 0);
          ended : OUT  std_logic;
          sat : OUT  std_logic;
-         model : OUT  std_logic_vector(3 downto 0)
+         model : OUT  std_logic_vector(2 downto 0)
         );
     END COMPONENT;
     
@@ -56,12 +58,12 @@ ARCHITECTURE behavior OF testing101 IS
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
    signal load : std_logic := '0';
-   signal i : std_logic_vector(3 downto 0) := (others => '0');
+   signal i : std_logic_vector(2 downto 0) := (others => '0');
 
  	--Outputs
    signal ended : std_logic;
    signal sat : std_logic;
-   signal model : std_logic_vector(3 downto 0);
+   signal model : std_logic_vector(2 downto 0);
 
    -- Clock period definitions
    constant clock_period : time := 10 ns;
@@ -93,24 +95,29 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-		wait for 100 ns;	
-		reset <= '1';
-		wait for 2*clock_period;
-		reset <= '0';
-		load<='1';
-		i<="1000";
-		wait for clock_period;
-		load<='1';
-		i<="0000";
-      wait for clock_period;
-		load<='1';
-		i<="0100";
-		wait for clock_period;
-		load<='1';
-		i<="0000";
+		
+wait for 100 ns;  
+reset <= '1';
+wait for 2*clock_period;
+reset <= '0';
+
+load <= '1';
+
+i <= "110";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+i <= "010";
+wait for clock_period;
+i <= "100";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+
+load <= '0';
      
-		wait for clock_period;
-		load<='0';
       -- insert stimulus here 
 
       wait;

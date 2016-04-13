@@ -1,16 +1,18 @@
+--ANSWER TO THIS TEST BENCH
+--False
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
 --
--- Create Date:   17:25:25 04/06/2016
+-- Create Date:   16:09:58 04/06/2016
 -- Design Name:   
--- Module Name:   /home/shubham/DLD/Project/controller1/testb_PL_UC.vhd
--- Project Name:  controller1
+-- Module Name:   /home/sumith1896/sandbox/controller/testing101.vhd
+-- Project Name:  controller
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: testing_PL_UC
+-- VHDL Test Bench Created by ISE for module: controller
 -- 
 -- Dependencies:
 -- 
@@ -32,22 +34,22 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY testb_PL_UC IS
-END testb_PL_UC;
+ENTITY testing101 IS
+END testing101;
  
-ARCHITECTURE behavior OF testb_PL_UC IS 
+ARCHITECTURE behavior OF testing101 IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT testing_PL_UC
+    COMPONENT controller
     PORT(
          clock : IN  std_logic;
          reset : IN  std_logic;
          load : IN  std_logic;
-         i : IN  std_logic_vector(3 downto 0);
+         i : IN  std_logic_vector(2 downto 0);
          ended : OUT  std_logic;
          sat : OUT  std_logic;
-         model : OUT  std_logic_vector(3 downto 0)
+         model : OUT  std_logic_vector(2 downto 0)
         );
     END COMPONENT;
     
@@ -56,12 +58,12 @@ ARCHITECTURE behavior OF testb_PL_UC IS
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
    signal load : std_logic := '0';
-   signal i : std_logic_vector(3 downto 0) := (others => '0');
+   signal i : std_logic_vector(2 downto 0) := (others => '0');
 
  	--Outputs
    signal ended : std_logic;
    signal sat : std_logic;
-   signal model : std_logic_vector(3 downto 0);
+   signal model : std_logic_vector(2 downto 0);
 
    -- Clock period definitions
    constant clock_period : time := 10 ns;
@@ -69,7 +71,7 @@ ARCHITECTURE behavior OF testb_PL_UC IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: testing_PL_UC PORT MAP (
+   uut: controller PORT MAP (
           clock => clock,
           reset => reset,
           load => load,
@@ -93,51 +95,31 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
---      wait for 100 ns;	
---
---      wait for clock_period*10;
---		wait for 100 ns;	
---reset <= '1';
---wait for 2*clock_period;
---reset <= '0';
---load<='1';
---i<="1";
---wait for clock_period;
---load<='1';
---i<="0";
---wait for clock_period;
---load<='1';
---i<="1";
---wait for clock_period;
---load<='1';
---i<="0";
---wait for clock_period;
---load<='0';
-
--- 1 X 1
--- Ans  A:true
-      -- insert stimulus here 
-		wait for 100 ns;	
-		reset <= '1';
-
-    --wait for clock_period/2;
-		wait for 2*clock_period;
-		reset <= '0';
-		load<='1';
-		i<="1000";
-		wait for clock_period;
-		load<='1';
-		i<="0000";
-      wait for clock_period;
-		load<='1';
-		i<="0100";
-		wait for clock_period;
-		load<='1';
-		i<="0000";
-     
-		wait for clock_period;
-		load<='0';
 		
+wait for 100 ns;  
+reset <= '1';
+wait for 2*clock_period;
+reset <= '0';
+
+load <= '1';
+
+i <= "100";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+i <= "100";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+i <= "000";
+wait for clock_period;
+
+load <= '0';
+     
+      -- insert stimulus here 
+
       wait;
    end process;
 

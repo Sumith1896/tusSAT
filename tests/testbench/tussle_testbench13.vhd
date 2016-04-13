@@ -1,5 +1,5 @@
 --ANSWER TO THIS TEST BENCH
---{cnf_1: True, cnf_5: False, cnf_4: False, cnf_2: False, cnf_3: False}
+--{cnf_5: False, cnf_3: False, cnf_2: False, cnf_4: False, cnf_1: False, cnf_6: False}
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
@@ -46,10 +46,10 @@ ARCHITECTURE behavior OF testing101 IS
          clock : IN  std_logic;
          reset : IN  std_logic;
          load : IN  std_logic;
-         i : IN  std_logic_vector(4 downto 0);
+         i : IN  std_logic_vector(5 downto 0);
          ended : OUT  std_logic;
          sat : OUT  std_logic;
-         model : OUT  std_logic_vector(4 downto 0)
+         model : OUT  std_logic_vector(5 downto 0)
         );
     END COMPONENT;
     
@@ -58,12 +58,12 @@ ARCHITECTURE behavior OF testing101 IS
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
    signal load : std_logic := '0';
-   signal i : std_logic_vector(4 downto 0) := (others => '0');
+   signal i : std_logic_vector(5 downto 0) := (others => '0');
 
  	--Outputs
    signal ended : std_logic;
    signal sat : std_logic;
-   signal model : std_logic_vector(4 downto 0);
+   signal model : std_logic_vector(5 downto 0);
 
    -- Clock period definitions
    constant clock_period : time := 10 ns;
@@ -103,25 +103,41 @@ reset <= '0';
 
 load <= '1';
 
-i <= "11100";
+i <= "000000";
 wait for clock_period;
-i <= "00000";
+i <= "100000";
 wait for clock_period;
-i <= "00000";
+i <= "000000";
 wait for clock_period;
-i <= "10001";
+i <= "001000";
 wait for clock_period;
-i <= "10100";
+i <= "010000";
 wait for clock_period;
-i <= "01000";
+i <= "100000";
 wait for clock_period;
-i <= "00011";
+i <= "010000";
 wait for clock_period;
-i <= "00100";
+i <= "000100";
 wait for clock_period;
-i <= "10000";
+i <= "000010";
 wait for clock_period;
-i <= "00110";
+i <= "000100";
+wait for clock_period;
+i <= "000000";
+wait for clock_period;
+i <= "101000";
+wait for clock_period;
+i <= "000000";
+wait for clock_period;
+i <= "000101";
+wait for clock_period;
+i <= "101000";
+wait for clock_period;
+i <= "010000";
+wait for clock_period;
+i <= "000101";
+wait for clock_period;
+i <= "010010";
 wait for clock_period;
 
 load <= '0';
