@@ -17,6 +17,6 @@ The tests are in `tests` subdirectory. The `testbench` are some select testbench
 
 ## Open source
 
-The project will be maintained open source under BSD license. <br>
+The project will be maintained open source under MIT license. <br>
 We are welcome for contributions and design suggestions. We are also open to very general VHDL suggestions as we are rookies in this area. Please open an issue in this repository or ping us. <br>
 If you send in a PR, ping [@Sumith1896](https://github.com/Sumith1896) or [@shubham-goel](https://github.com/shubham-goel) for review.
